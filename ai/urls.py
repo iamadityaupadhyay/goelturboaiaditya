@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('predict/', views.predict_influence, name='predict_influence'),
+    path('', views.predict_influence, name='predict_influence'),
 ]
