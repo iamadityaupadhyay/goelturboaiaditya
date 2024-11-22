@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influence Score Predictor</title>
+</head>
+<body>
+    <h1>Influence Score Prediction</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if predicted_influence_score %}
+        <h2>Predicted Influence Score: {{ predicted_influence_score }}</h2>
+    {% endif %}
+</body>
+</html>
