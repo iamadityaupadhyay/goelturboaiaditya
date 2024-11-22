@@ -36,10 +36,6 @@ def preprocess_data(data):
                 'new_post_avg_like', 'total_likes']:
         df[col] = df[col].apply(convert_to_number)
     
-    # Encode country (example encoding, modify as needed)
-    df['country_encoded'] = df['country'].map({'Unknown': 0, 'USA': 1, 'India': 2})
-    df.drop(columns=['country'], inplace=True)  # Drop original country column
-
     return df
 
 def predict_influence(request):
@@ -48,14 +44,25 @@ def predict_influence(request):
         if form.is_valid():
             data = form.cleaned_data
 
-            # Preprocess the input data (convert strings like "3.7k" to numeric)
-            processed_data = preprocess_data(data)
+            try:
+                # Preprocess the input data (convert strings like "3.7k" to numeric)
+                processed_data = preprocess_data(data)
 
-            # Make prediction using the model
-            prediction = model.predict(processed_data)
+                # Ensure the processed data has the same features as the model expects
+                expected_columns = ['posts', 'followers', 'avg_likes', 'sixty_day_eng_rate', 
+                                    'new_post_avg_like', 'total_likes']
+                missing_columns = [col for col in expected_columns if col not in processed_data.columns]
+                if missing_columns:
+                    return JsonResponse({'error': f'Missing expected columns: {", ".join(missing_columns)}'}, status=400)
 
-            # Return the prediction result as JSON
-            return JsonResponse({'predicted_influence_score': prediction[0]})
+                # Make prediction using the model
+                prediction = model.predict(processed_data)
+
+                # Return the prediction result as JSON
+                return JsonResponse({'predicted_influence_score': prediction[0]})
+
+            except Exception as e:
+                return JsonResponse({'error': f'Error during prediction: {str(e)}'}, status=500)
 
     else:
         form = InfluenceForm()

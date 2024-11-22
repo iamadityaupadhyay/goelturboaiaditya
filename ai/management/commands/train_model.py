@@ -13,12 +13,14 @@ class Command(BaseCommand):
         df = pd.read_csv('ai/top_insta_influencers_data(1).csv')  # Make sure to put the correct path to your CSV file
 
         # Preprocess the data
-        # Handle missing country values, but we won't use 'country' in the model anymore
-        df['country'].fillna('Unknown', inplace=True)  # Handle missing country values
+        # Handle missing values in the columns used for training
+        # If needed, you can handle missing values here for the features (e.g., fill NaNs)
+        df.fillna({'posts': 0, 'followers': 0, 'avg_likes': 0, '60_day_eng_rate': 0, 
+                   'new_post_avg_like': 0, 'total_likes': 0}, inplace=True)  # Fill missing values with 0
         
-        # Define feature columns and target variable
-        features = ['posts', 'followers', 'avg_likes', '60_day_eng_rate', 
-                    'new_post_avg_like', 'total_likes']  # Removed 'country_encoded'
+        # Define feature columns and target variable (without country)
+        features = ['posts', 'followers', 'avg_likes', 'sixty_day_eng_rate', 
+                    'new_post_avg_like', 'total_likes']  # Removed 'country' from features
         target = 'influence_score'  # Assuming 'influence_score' is your target column
         
         X = df[features]
@@ -47,8 +49,7 @@ class Command(BaseCommand):
             return value  # If no conversion needed, return the value as is
         
         # Apply conversion to numeric columns
-        for col in ['posts', 'followers', 'avg_likes', '60_day_eng_rate', 
-                    'new_post_avg_like', 'total_likes']:
+        for col in features:
             X[col] = X[col].apply(convert_to_number)
 
         # Train-test split
